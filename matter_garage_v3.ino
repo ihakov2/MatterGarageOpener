@@ -39,6 +39,8 @@ Compatible with old style garage door openers that use a single-button remote co
     but should work with any matter hub - not tested.
 
    Author: ildus hakov 5/26/2024 
+
+  This code for the board v1.2 (Ver2 board) 
  */
 #include <Matter.h>
 #include <MatterLightbulb.h>
