@@ -43,10 +43,10 @@ Compatible with old style garage door openers that use a single-button remote co
 #include <Matter.h>
 #include <MatterLightbulb.h>
 // Uncomment below line to see the debug output 
-//#define SHOW_SERIAL
+#define SHOW_SERIAL
 #define TRIGGER PD2
 #define ECHO    PD3
-#define TRANS   PD0
+#define TRANS   PD1 //ver2 PD0  ver3 PD1
 #define DIST_DETECTION  70 //cm
 #define CONTACT_CLOSE_DURATION 700 //msec
 float dist_inches, dist_cm;
@@ -166,7 +166,7 @@ void loop() {
     garageOpenClosedEvent=true;
     previousMillis = millis();
     #ifdef SHOW_SERIAL
-      Serial.println("openCloseGarage");
+      Serial.print("openCloseGarageEvent=");Serial.println(garageOpenClosedEvent);
     #endif
   }
 
