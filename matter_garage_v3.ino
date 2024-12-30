@@ -50,6 +50,8 @@ Compatible with old style garage door openers that use a single-button remote co
 #define TRANS   PD1 //ver2 PD0  ver3 PD1
 #define DIST_DETECTION  70 //cm
 #define CONTACT_CLOSE_DURATION 700 //msec
+
+#define DECOMISSION_BTN PC4
 float dist_inches, dist_cm;
 
 MatterLightbulb matter_bulb_1;
@@ -72,6 +74,9 @@ void setup() {
 	pinMode(ECHO,INPUT);
   pinMode(TRANS, OUTPUT);
   digitalWrite(TRANS, LOW);
+
+  pinMode(DECOMISSION_BTN, INPUT_PULLUP);
+  
   
   if (!Matter.isDeviceCommissioned()) {
       Serial.println("Matter device is not commissioned");
@@ -83,17 +88,19 @@ void setup() {
     delay(200);
   }
 
-  if (!Matter.isDeviceConnected()) {
+  if (!Matter.isDeviceThreadConnected()) {
       Serial.println("Waiting for network connection...");
   }
-  while (!Matter.isDeviceConnected()) {
+  while (!Matter.isDeviceThreadConnected()) {
     delay(200);
   }
   Serial.println("Garage opener device connected");
 }
 
 void loop() {
+  decommission_handler();
   calcDistance();
+  //Serial.println(dist_cm);
   // local status
   bool localStatusChanged = false;  
   localStatus = dist_cm < DIST_DETECTION;
@@ -181,7 +188,7 @@ void loop() {
 		digitalWrite(TRIGGER,LOW);
 		
      //If pulseIn not working try to change it to HIGH
-		float distance=pulseIn(ECHO,LOW) * 0.0001657;
+		float distance=pulseIn(ECHO,HIGH) * 0.0001657;
 		dist_inches=distance*39.37;
     dist_cm=dist_inches*2.54;    
   }
@@ -198,4 +205,34 @@ void printLocal() {
 void printRemote() {   
     Serial.print("remoteStatus=");Serial.print(remoteStatus);
     Serial.print(" prevRemoteStatus=");Serial.println(prevRemoteStatus);
+}
+
+void decommission_handler() {
+  // If the button is not pressed or the device is not commissioned - return
+  if (digitalRead(DECOMISSION_BTN) != LOW || !Matter.isDeviceThreadConnected()) {
+    return;
+  }
+  // Store the time when the button was first pressed
+  uint32_t start_time = millis();
+  // While the button is being pressed
+  while (digitalRead(DECOMISSION_BTN) == LOW) {
+    // Calculate the elapsed time
+    uint32_t elapsed_time = millis() - start_time;
+    // If the button has been pressed for less than 10 seconds, continue
+    if (elapsed_time < 5000u) {
+      yield();
+      continue;
+    }
+    // Blink the LED to indicate the start of the decommissioning process
+    for (uint8_t i = 0u; i < 10u; i++) {
+      digitalWrite(LED_BUILTIN, !(digitalRead(LED_BUILTIN)));
+      delay(100);
+    }
+    Serial.println("Starting decommissioning process, device will reboot...");
+    Serial.println();
+    digitalWrite(LED_BUILTIN, LED_BUILTIN_INACTIVE);
+    // This function will not return
+    // The device will restart once decommissioning has finished
+    Matter.decommission();
+  }
 }
