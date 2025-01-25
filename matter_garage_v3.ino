@@ -46,12 +46,12 @@ Compatible with old style garage door openers that use a single-button remote co
 // Uncomment below line to see the debug output 
 #define SHOW_SERIAL
 #define TRIGGER PD2
-#define ECHO    PD3
-#define TRANS   PD1 //ver2 PD0  ver3 PD1
+#define ECHO    PD1
+#define TRANS   PD3 // xiao //ver2 PD0  ver3 PD1
 #define DIST_DETECTION  70 //cm
 #define CONTACT_CLOSE_DURATION 700 //msec
 
-#define DECOMISSION_BTN PC4
+#define DECOMISSION_BTN PD0
 float dist_inches, dist_cm;
 
 MatterLightbulb matter_bulb_1;
@@ -83,22 +83,36 @@ void setup() {
       Serial.println("Commission it to your Matter hub with the manual pairing code or QR code");
       Serial.printf("Manual pairing code: %s\n", Matter.getManualPairingCode().c_str());
       Serial.printf("QR code URL: %s\n", Matter.getOnboardingQRCodeUrl().c_str());
+  }else {
+   // Matter.decommission();
   }
   while (!Matter.isDeviceCommissioned()) {
     delay(200);
   }
 
-  if (!Matter.isDeviceThreadConnected()) {
-      Serial.println("Waiting for network connection...");
-  }
+  Serial.println("Waiting for Thread network...");
   while (!Matter.isDeviceThreadConnected()) {
     delay(200);
+    //while (!matter_bulb_1.is_online()) {
+    /*String buf=Serial.readString();
+    Serial.print("buf=");Serial.println(buf);
+    if(buf=="decom") {
+      Matter.decommission();
+    }
+  //}*/
   }
+  Serial.println("Connected to Thread network");
+
+  Serial.println("Waiting for Matter device discovery...");
+  
   Serial.println("Garage opener device connected");
 }
 
 void loop() {
-  decommission_handler();
+  String buf=Serial.readString();
+  if(buf=="decom") {
+    Matter.decommission();
+  }
   calcDistance();
   //Serial.println(dist_cm);
   // local status
