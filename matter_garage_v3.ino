@@ -45,13 +45,13 @@ Compatible with old style garage door openers that use a single-button remote co
 #include <MatterLightbulb.h>
 // Uncomment below line to see the debug output 
 #define SHOW_SERIAL
-#define TRIGGER PD2
-#define ECHO    PD1
-#define TRANS   PD3 // xiao //ver2 PD0  ver3 PD1
+#define TRIGGER D2
+#define ECHO    D1
+#define TRANS   D3 // xiao //ver2 PD0  ver3 PD1
 #define DIST_DETECTION  70 //cm
 #define CONTACT_CLOSE_DURATION 700 //msec
 
-#define DECOMISSION_BTN PD0
+#define DECOMISSION_BTN D0
 float dist_inches, dist_cm;
 
 MatterLightbulb matter_bulb_1;
