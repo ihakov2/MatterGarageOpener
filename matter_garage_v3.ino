@@ -93,17 +93,17 @@ void setup() {
   Serial.println("Waiting for Thread network...");
   while (!Matter.isDeviceThreadConnected()) {
     delay(200);
-    //while (!matter_bulb_1.is_online()) {
-    /*String buf=Serial.readString();
-    Serial.print("buf=");Serial.println(buf);
-    if(buf=="decom") {
-      Matter.decommission();
-    }
-  //}*/
   }
   Serial.println("Connected to Thread network");
 
   Serial.println("Waiting for Matter device discovery...");
+  while (!matter_bulb_1.is_online()) {
+    String buf=Serial.readString();
+    Serial.print("buf=");Serial.println(buf);
+    if(buf=="decom") {
+      Matter.decommission();
+    }
+  }
   
   Serial.println("Garage opener device connected");
 }
@@ -137,7 +137,7 @@ void loop() {
       printDist();
     #endif
 
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_BUILTIN, LOW);
     prevLocalStatus = localStatus;
   }
   if(!localStatus && prevLocalStatus) {
@@ -148,7 +148,7 @@ void loop() {
       Serial.println("Status: Garage is closed");
       printDist();
     #endif    
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(LED_BUILTIN, HIGH);
     prevLocalStatus = localStatus;
   }
   /// Read remote
